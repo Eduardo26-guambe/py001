@@ -441,8 +441,83 @@ tbody tr:last-child td {
 }
 
 .feedback-chat {
-    width: min(100%, 620px);
-    margin: 36px auto 0;
+    display: flex;
+    flex-direction: column;
+    width: min(380px, calc(100vw - 32px));
+    max-height: 80vh;
+    margin: 0;
+}
+
+.feedback-chat[hidden] {
+    display: none;
+}
+
+.feedback-widget {
+    position: fixed;
+    right: 24px;
+    bottom: calc(24px + env(safe-area-inset-bottom));
+    z-index: 950;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 12px;
+}
+
+.feedback-widget__toggle {
+    display: grid;
+    width: 60px;
+    height: 60px;
+    padding: 15px;
+    place-items: center;
+    border: 0;
+    border-radius: 50%;
+    background: #147d62;
+    box-shadow: 0 8px 22px rgba(20, 125, 98, 0.3);
+    color: #fff;
+    cursor: pointer;
+    transition: background 150ms ease, transform 150ms ease;
+}
+
+.feedback-widget__toggle:hover {
+    transform: translateY(-2px);
+    background: #106a53;
+}
+
+.feedback-widget__toggle:focus-visible,
+.feedback-chat__close:focus-visible {
+    outline: 3px solid #9ee5bd;
+    outline-offset: 3px;
+}
+
+.feedback-widget__toggle svg {
+    width: 100%;
+    height: 100%;
+    fill: none;
+    stroke: currentColor;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 1.8;
+}
+
+.feedback-chat__close {
+    display: grid;
+    width: 32px;
+    height: 32px;
+    margin-left: auto;
+    padding: 0;
+    place-items: center;
+    border: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.16);
+    color: #fff;
+    cursor: pointer;
+    font: inherit;
+    font-size: 1.35rem;
+    line-height: 1;
+}
+
+.feedback-chat__close:hover {
+    background: rgba(255, 255, 255, 0.28);
 }
 
 .feedback-chat__header,
@@ -488,6 +563,11 @@ tbody tr:last-child td {
     background-color: #f5f8f6;
     background-image: radial-gradient(#dce8e2 0.7px, transparent 0.7px);
     background-size: 14px 14px;
+}
+
+.feedback-chat__messages {
+    flex: 1 1 auto;
+    min-height: 80px;
 }
 
 .feedback-message {
@@ -651,6 +731,14 @@ tbody tr:last-child td {
     }
 
     .feedback-chat__form button {
+        width: auto;
+        min-height: 40px;
+        padding: 8px 14px;
         flex: 0 0 auto;
+    }
+
+    .feedback-widget {
+        right: 16px;
+        bottom: calc(16px + env(safe-area-inset-bottom));
     }
 }
