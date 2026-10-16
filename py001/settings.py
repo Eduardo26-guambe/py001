@@ -21,12 +21,13 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-3g3-7s7(ze_5k-=t=yiqnz0e_mt)jdbfsk7h5dkk*^d1#q=anf'
+SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-3g3-7s7(ze_5k-=t=yiqnz0e_mt)jdbfsk7h5dkk*^d1#q=anf')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = os.environ.get('DEBUG', 'False').lower() in ('true', '1', 't')
 
-ALLOWED_HOSTS = []
+# Permite acesso do Render e localhost
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -38,11 +39,12 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'app'
+    'app',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',  # <-- Adicionado para servir CSS/JS no Render
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -77,10 +79,15 @@ WSGI_APPLICATION = 'py001.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'USER':'guambe',
-        'PASSWORD':'eduardo123',
-        'HOST': 'localhost',
+        'USER': 'avnadmin',
+        'PASSWORD': 'AVNS_W0LtYipOgMMnr8qb5wF',
+        'HOST': 'mysql-23d30934-eduardomanuelguambe26-b804.i.aivencloud.com',
         'NAME': 'defaultdb',
+        'PORT': 11337,
+        'OPTIONS': {
+            'ssl': {'ssl-mode': 'REQUIRED'},
+            'charset': 'utf8mb4',
+        },
     }
 }
 
@@ -119,10 +126,25 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
-STATIC_URL = 'static/'
-STATICFILES=[
-    BASE_DIR / 'static'
+STATIC_URL = '/static/'
+
+# Diretório onde os ficheiros estáticos da sua aplicação estão localizados
+STATICFILES_DIRS = [
+    BASE_DIR / 'static',
 ]
+
+# Diretório para onde o Django junta todos os estáticos ao correr 'collectstatic'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+
+# Configuração do WhiteNoise para comprimir e guardar em cache ficheiros estáticos
+STORAGES = {
+    "default": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+    },
+}
 
 LOGIN_URL = 'login_render'
 LOGIN_REDIRECT_URL = 'main_render'
@@ -140,4 +162,3 @@ EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', '')
 EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', '')
 EMAIL_USE_TLS = os.environ.get('EMAIL_USE_TLS', '').lower() == 'true'
 DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', 'webmaster@localhost')
-ALLOWED_HOSTS = ['py001.onrender.com', 'localhost', '127.0.0.1']
