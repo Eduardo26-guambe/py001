@@ -5,7 +5,7 @@ from django.core import mail
 from django.test import TestCase, override_settings
 from django.urls import reverse
 
-from .models import e_votos, est, p_votos, pres, s_votos, sec
+from .models import Feedback, e_votos, est, p_votos, pres, s_votos, sec
 
 
 class VotingFlowTests(TestCase):
@@ -75,6 +75,47 @@ class VotingFlowTests(TestCase):
         )
         self.assertRedirects(response, reverse('main_render'))
         self.assertEqual(int(self.client.session['_auth_user_id']), self.voter.pk)
+
+    def test_feedback_chat_saves_messages_and_displays_them_to_admin(self):
+        feedback_url = reverse('enviar_feedback')
+        response = self.client.post(feedback_url, {'message': 'O sistema é fácil de usar.'})
+        self.assertRedirects(
+            response,
+            f"{reverse('login_render')}?next={feedback_url}",
+        )
+        self.assertEqual(Feedback.objects.count(), 0)
+
+        self.client.force_login(self.voter)
+        response = self.client.post(feedback_url, {'message': '  O sistema é fácil de usar.  '})
+        self.assertRedirects(response, reverse('main_render'))
+        feedback = Feedback.objects.get()
+        self.assertEqual(feedback.user, self.voter)
+        self.assertEqual(feedback.message, 'O sistema é fácil de usar.')
+
+        response = self.client.get(reverse('main_render'))
+        self.assertContains(response, 'Como está a sua experiência com o sistema?')
+        self.assertContains(response, 'O sistema é fácil de usar.')
+
+        self.client.force_login(self.superuser)
+        response = self.client.get(reverse('resultados'))
+        self.assertContains(response, 'Feedback do sistema')
+        self.assertContains(response, 'voter')
+        self.assertContains(response, 'O sistema é fácil de usar.')
+
+    def test_feedback_chat_rejects_blank_or_overlong_messages(self):
+        self.client.force_login(self.voter)
+        feedback_url = reverse('enviar_feedback')
+
+        for message in ('   ', 'x' * 1001):
+            with self.subTest(message_length=len(message)):
+                response = self.client.post(feedback_url, {'message': message})
+                self.assertRedirects(response, reverse('main_render'))
+                self.assertEqual(Feedback.objects.count(), 0)
+
+        self.assertEqual(
+            self.client.get(feedback_url).status_code,
+            405,
+        )
 
     def test_existing_public_pages_render(self):
         for page in ('login_render', 'reg_render', 'admin_render', 'password_reset'):

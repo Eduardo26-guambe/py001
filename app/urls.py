@@ -9,6 +9,7 @@ urlpatterns = [
     path('admin.auth/', views.admin_render, name='admin_render'),
     path('votar/', views.main_render, name='main_render'),
     path('votar/submeter/', views.submeter_voto, name='submeter_voto'),
+    path('feedback/enviar/', views.enviar_feedback, name='enviar_feedback'),
     path('resultados/', views.resultados, name='resultados'),
     path('sair/', views.sair, name='sair'),
     path('login/', views.logar, name='logar'),

@@ -116,6 +116,34 @@
             </div>
         </form>
         {% endif %}
+
+        <section class="feedback-chat" aria-labelledby="feedback-title">
+            <header class="feedback-chat__header">
+                <span class="feedback-chat__status" aria-hidden="true"></span>
+                <div>
+                    <h2 id="feedback-title">Feedback do sistema</h2>
+                    <p>Conte-nos como podemos melhorar</p>
+                </div>
+            </header>
+            <div class="feedback-chat__messages" aria-live="polite">
+                <article class="feedback-message feedback-message--received">
+                    <p>Olá, {{ nome }}! Como está a sua experiência com o sistema? Envie as suas dúvidas ou sugestões por aqui.</p>
+                </article>
+                {% for feedback in feedbacks_usuario %}
+                    <article class="feedback-message feedback-message--sent">
+                        <p>{{ feedback.message }}</p>
+                        <time datetime="{{ feedback.created_at|date:'c' }}">{{ feedback.created_at|date:'d/m/Y H:i' }}</time>
+                    </article>
+                {% endfor %}
+            </div>
+            <form class="feedback-chat__form" action="{% url 'enviar_feedback' %}" method="post">
+                {% csrf_token %}
+                <label class="visually-hidden" for="feedback-message">A sua mensagem de feedback</label>
+                <textarea id="feedback-message" name="message" rows="2" maxlength="1000"
+                          placeholder="Escreva a sua mensagem..." required></textarea>
+                <button type="submit">Enviar</button>
+            </form>
+        </section>
     </div>
 
     <!-- MODAL DE DETALHES -->

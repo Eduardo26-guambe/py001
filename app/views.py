@@ -11,7 +11,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.cache import never_cache
 from django.views.decorators.http import require_POST
 
-from .models import e_votos, est, p_votos, pres, s_votos, sec
+from .models import Feedback, e_votos, est, p_votos, pres, s_votos, sec
 
 
 def incio(_request):
@@ -106,8 +106,23 @@ def main_render(request):
             or e_votos.objects.filter(user_id=request.user).exists()
         ),
         'nome': request.user.get_full_name() or request.user.get_username(),
+        'feedbacks_usuario': Feedback.objects.filter(user=request.user),
     }
     return render(request, 'index.html', contexto)
+
+
+@login_required
+@require_POST
+def enviar_feedback(request):
+    message = request.POST.get('message', '').strip()
+    if not message:
+        messages.error(request, 'Escreva uma mensagem antes de enviar.')
+    elif len(message) > 1000:
+        messages.error(request, 'A mensagem deve ter no máximo 1000 caracteres.')
+    else:
+        Feedback.objects.create(user=request.user, message=message)
+        messages.success(request, 'O seu feedback foi enviado.')
+    return redirect('main_render')
 
 
 @login_required
@@ -158,5 +173,6 @@ def resultados(request):
                 ('Estatística', est.objects.annotate(total_votos=Count('e_votos'))),
             ),
             'nome': request.user.get_username(),
+            'feedbacks': Feedback.objects.select_related('user').all(),
         },
     )
