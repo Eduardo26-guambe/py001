@@ -5,6 +5,12 @@ from django.contrib.auth.models import User
 
 
 class Feedback(models.Model):
+    REACTION_CHOICES = (
+        ('like', '👍'),
+        ('love', '❤️'),
+        ('thanks', '🙏'),
+    )
+
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
@@ -12,6 +18,12 @@ class Feedback(models.Model):
     )
     message = models.TextField(max_length=1000)
     created_at = models.DateTimeField(auto_now_add=True)
+    reaction = models.CharField(
+        max_length=10,
+        choices=REACTION_CHOICES,
+        blank=True,
+        default='',
+    )
 
     class Meta:
         ordering = ('created_at', 'pk')

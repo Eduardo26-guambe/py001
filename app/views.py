@@ -125,6 +125,24 @@ def enviar_feedback(request):
     return redirect('main_render')
 
 
+@user_passes_test(lambda user: user.is_superuser, login_url='admin_render')
+@require_POST
+def reagir_feedback(request, feedback_id):
+    feedback = get_object_or_404(Feedback, pk=feedback_id)
+    reaction = request.POST.get('reaction', '')
+    valid_reactions = dict(Feedback.REACTION_CHOICES)
+    if reaction not in valid_reactions:
+        messages.error(request, 'Selecione uma reação válida.')
+        return redirect('resultados')
+
+    if Feedback.objects.filter(pk=feedback.pk, reaction='').update(reaction=reaction):
+        messages.success(request, 'Reação atualizada.')
+    else:
+        messages.error(request, 'Este feedback já recebeu uma reação.')
+
+    return redirect('resultados')
+
+
 @login_required
 @require_POST
 def submeter_voto(request):
@@ -174,5 +192,6 @@ def resultados(request):
             ),
             'nome': request.user.get_username(),
             'feedbacks': Feedback.objects.select_related('user').all(),
+            'feedback_reactions': Feedback.REACTION_CHOICES,
         },
     )

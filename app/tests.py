@@ -98,7 +98,7 @@ class VotingFlowTests(TestCase):
 
         self.client.force_login(self.superuser)
         response = self.client.get(reverse('resultados'))
-        self.assertContains(response, 'Feedback do sistema')
+        self.assertContains(response, 'Feedback dos utilizadores')
         self.assertContains(response, 'voter')
         self.assertContains(response, 'O sistema é fácil de usar.')
 
@@ -116,6 +116,66 @@ class VotingFlowTests(TestCase):
             self.client.get(feedback_url).status_code,
             405,
         )
+
+    def test_admin_can_react_to_feedback_and_author_sees_reaction(self):
+        feedback = Feedback.objects.create(
+            user=self.voter,
+            message='O sistema é fácil de usar.',
+        )
+        reaction_url = reverse('reagir_feedback', args=[feedback.pk])
+
+        self.client.force_login(self.voter)
+        response = self.client.post(reaction_url, {'reaction': 'like'})
+        self.assertRedirects(
+            response,
+            f"{reverse('admin_render')}?next=%2Ffeedback%2F{feedback.pk}%2Freagir%2F",
+        )
+        feedback.refresh_from_db()
+        self.assertEqual(feedback.reaction, '')
+
+        self.client.force_login(self.superuser)
+        response = self.client.post(reaction_url, {'reaction': 'like'})
+        self.assertRedirects(response, reverse('resultados'))
+        feedback.refresh_from_db()
+        self.assertEqual(feedback.reaction, 'like')
+
+        self.client.force_login(self.voter)
+        response = self.client.get(reverse('main_render'))
+        self.assertContains(response, '👍 Reação da equipa')
+        self.client.force_login(self.superuser)
+        response = self.client.get(reverse('resultados'))
+        self.assertContains(response, '👍 Reação enviada')
+
+        response = self.client.get(reverse('resultados'))
+        self.assertContains(response, 'id="feedback-chat-panel"')
+        self.assertNotContains(response, 'aria-label="Reagir com ❤️"')
+        self.assertNotContains(response, 'aria-label="Reagir com 👍"')
+        self.assertNotContains(response, 'aria-label="Reagir com 🙏"')
+
+        response = self.client.post(reaction_url, {'reaction': 'love'})
+        self.assertRedirects(response, reverse('resultados'))
+        feedback.refresh_from_db()
+        self.assertEqual(feedback.reaction, 'like')
+
+        response = self.client.post(reaction_url, {'reaction': 'like'})
+        self.assertRedirects(response, reverse('resultados'))
+        feedback.refresh_from_db()
+        self.assertEqual(feedback.reaction, 'like')
+
+    def test_feedback_reaction_rejects_invalid_values_and_get_requests(self):
+        self.client.force_login(self.superuser)
+        feedback = Feedback.objects.create(
+            user=self.voter,
+            message='Uma sugestão.',
+        )
+        reaction_url = reverse('reagir_feedback', args=[feedback.pk])
+
+        response = self.client.post(reaction_url, {'reaction': 'invalid'})
+        self.assertRedirects(response, reverse('resultados'))
+        feedback.refresh_from_db()
+        self.assertEqual(feedback.reaction, '')
+
+        self.assertEqual(self.client.get(reaction_url).status_code, 405)
 
     def test_existing_public_pages_render(self):
         for page in ('login_render', 'reg_render', 'admin_render', 'password_reset'):

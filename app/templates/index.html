@@ -132,12 +132,18 @@
             </header>
             <div class="feedback-chat__messages" aria-live="polite">
                 <article class="feedback-message feedback-message--received">
-                    <p >Olá, {{ nome }}!<br>Tem algum comentário ou sugetão para o sistema? Envie aqui.</p>
+                    <p >Olá, {{ nome }}! Como está a sua experiência com o sistema? Envie as suas dúvidas ou sugestões por aqui.</p>
                 </article>
                 {% for feedback in feedbacks_usuario %}
                     <article class="feedback-message feedback-message--sent">
                         <p>{{ feedback.message }}</p>
                         <time datetime="{{ feedback.created_at|date:'c' }}">{{ feedback.created_at|date:'d/m/Y H:i' }}</time>
+                        {% if feedback.reaction %}
+                            <span class="feedback-message__reaction"
+                                  aria-label="Reação da equipa: {{ feedback.get_reaction_display }}">
+                                {{ feedback.get_reaction_display }} Reação da equipa
+                            </span>
+                        {% endif %}
                     </article>
                 {% endfor %}
             </div>

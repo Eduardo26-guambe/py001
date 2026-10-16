@@ -10,6 +10,11 @@ urlpatterns = [
     path('votar/', views.main_render, name='main_render'),
     path('votar/submeter/', views.submeter_voto, name='submeter_voto'),
     path('feedback/enviar/', views.enviar_feedback, name='enviar_feedback'),
+    path(
+        'feedback/<int:feedback_id>/reagir/',
+        views.reagir_feedback,
+        name='reagir_feedback',
+    ),
     path('resultados/', views.resultados, name='resultados'),
     path('sair/', views.sair, name='sair'),
     path('login/', views.logar, name='logar'),
