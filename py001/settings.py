@@ -11,7 +11,6 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
 from pathlib import Path
-import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -21,13 +20,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-3g3-7s7(ze_5k-=t=yiqnz0e_mt)jdbfsk7h5dkk*^d1#q=anf')
+SECRET_KEY = 'django-insecure-3g3-7s7(ze_5k-=t=yiqnz0e_mt)jdbfsk7h5dkk*^d1#q=anf'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-# Permite acesso do Render e localhost
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = []
 
 
 # Application definition
@@ -39,18 +37,17 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'app',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',  # <-- Adicionado para servir CSS/JS no Render
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'app'
 ]
 
 ROOT_URLCONF = 'py001.urls'
@@ -79,15 +76,9 @@ WSGI_APPLICATION = 'py001.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'USER': 'avnadmin',
-        'PASSWORD': 'AVNS_W0LtYipOgMMnr8qb5wF',
-        'HOST': 'mysql-23d30934-eduardomanuelguambe26-b804.i.aivencloud.com',
         'NAME': 'defaultdb',
-        'PORT': 11337,
-        'OPTIONS': {
-            'ssl': {'ssl-mode': 'REQUIRED'},
-            'charset': 'utf8mb4',
-        },
+        'USER':'guambe',
+        'PASSWORD': 'eduardo123'
     }
 }
 
@@ -114,7 +105,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/6.0/topics/i18n/
 
-LANGUAGE_CODE = 'pt'
+LANGUAGE_CODE = 'en-us'
 
 TIME_ZONE = 'Africa/Maputo'
 
@@ -126,39 +117,4 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
-STATIC_URL = '/static/'
-
-# Diretório onde os ficheiros estáticos da sua aplicação estão localizados
-STATICFILES_DIRS = [
-    BASE_DIR / 'static',
-]
-
-# Diretório para onde o Django junta todos os estáticos ao correr 'collectstatic'
-STATIC_ROOT = BASE_DIR / 'staticfiles'
-
-# Configuração do WhiteNoise para comprimir e guardar em cache ficheiros estáticos
-STORAGES = {
-    "default": {
-        "BACKEND": "django.core.files.storage.FileSystemStorage",
-    },
-    "staticfiles": {
-        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
-    },
-}
-
-LOGIN_URL = 'login_render'
-LOGIN_REDIRECT_URL = 'main_render'
-LOGOUT_REDIRECT_URL = 'login_render'
-
-EMAIL_BACKEND = os.environ.get(
-    'EMAIL_BACKEND',
-    'django.core.mail.backends.console.EmailBackend'
-    if DEBUG
-    else 'django.core.mail.backends.smtp.EmailBackend',
-)
-EMAIL_HOST = os.environ.get('EMAIL_HOST', 'localhost')
-EMAIL_PORT = int(os.environ.get('EMAIL_PORT', '25'))
-EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', '')
-EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', '')
-EMAIL_USE_TLS = os.environ.get('EMAIL_USE_TLS', '').lower() == 'true'
-DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', 'webmaster@localhost')
+STATIC_URL = 'static/'
